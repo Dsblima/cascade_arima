@@ -1,7 +1,7 @@
 # %%R
 import pandas as pd
 import numpy
-import sys
+import sys,os
 # import ExponentialSmoothing as es
 from statsmodels.tsa.holtwinters import ExponentialSmoothing, SimpleExpSmoothing, Holt
 import scipy.stats as st
@@ -9,15 +9,25 @@ import rpy2
 import rpy2.robjects as r
 import rpy2.robjects.numpy2ri
 from sklearn.metrics import mean_squared_error
-rpy2.robjects.numpy2ri.activate()
-import DataHandler as dh
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.neural_network import MLPRegressor
 from sklearn.model_selection import GridSearchCV
+rpy2.robjects.numpy2ri.activate()
+import DataHandler as dh
+from cascade import *
+sys.path.append(
+	os.path.join(
+		os.path.dirname(__file__), 
+		'..', 
+		'utils'
+	)
+)
+from util import *
+from Padronizar import *
 
 
-
-class Zhang:
-    def __init__(self,data,dimension,neurons,testNO):
+class CascadeArima:
+    def __init__(self,data,dimension,neurons,testNO, cascadeNumHiddenNodes):
         # print("rpy2.__path__")
         # print(rpy2.__path__)
 	    # data = dados que serão trabahados
@@ -30,10 +40,18 @@ class Zhang:
         self.valset=0.4
         self.neurons=neurons
         self.testNO=testNO
+        self.cascadeNumHiddenNodes = cascadeNumHiddenNodes
     def start(self):
         dh2=dh.DataHandler(self.data,self.dimension,self.trainset,self.valset,self.testNO)
         # separando os dados em treino, teste e validação
         train_set, train_target, val_set, val_target, test_set, test_target, arima_train, arima_val, arima_test= dh2.redimensiondata(self.data,self.dimension,self.trainset,self.valset,self.testNO)
+        
+        # NORMALIZAR OS DADOS
+        
+        # inputTrainScaler,targetTrainScaler,train_set,train_target = normalizar(numpy.array(train_set), numpy.array(train_target).reshape(-1, 1))
+        # inputValScaler,targetValScaler,val_set, val_target = normalizar(numpy.array(val_set), numpy.array(val_target).reshape(-1, 1))
+        # inputTestScaler,targetTestScaler,test_set, test_target = normalizar(numpy.array(test_set), numpy.array(test_target).reshape(-1, 1))
+        
         traindats=[]
         traindats.extend(arima_train)
         traindats.extend(arima_val)
@@ -56,9 +74,7 @@ class Zhang:
 
         predTudo.extend(predTreino)
         predTudo.extend(predVal)
-       # target=[]
-        #target.extend(arima_train)
-        #arget.extend(arima_val)
+       
         residualTreino=numpy.array(arima_train)-(predTreino)
         predTudo.extend(predTest)
         residual=self.data-predTudo
@@ -66,31 +82,46 @@ class Zhang:
         residualNorm= (residual-min(residualTreino))/(max(residualTreino)-min(residualTreino))
 
         train_set2, train_target2, val_set2, val_target2, test_set2, test_target2, arima_train2, arima_val2, arima_test2 = dh2.redimensiondata(
-            residualNorm, self.dimension, self.trainset, self.valset,self.testNO)
+        residualNorm, self.dimension, self.trainset, self.valset,self.testNO)
         train_set2.extend(val_set2)
         train_target2.extend(val_target2)
-        nn1 = MLPRegressor(activation='tanh', solver='lbfgs', shuffle=False,max_iter=5000, learning_rate_init=0.05)
-        rna = GridSearchCV(nn1, param_grid={
-            'hidden_layer_sizes': [(2,), (5,), (10,), (15,), (20,)]})
-        rna.fit(train_set2,train_target2)
-
-        ranks=(rna.cv_results_['rank_test_score'])
-        index = numpy.argmin(ranks)
-        print("index")
-        print(index)
-        neuronlist = [2,5,10,15,20]
-#        print('Number of hidden neurons %d'%(neuronlist[index]))
-        predRNA=rna.predict(test_set2)
-
+        
+        num_hidden_nodes = self.cascadeNumHiddenNodes
+        cascade: Cascade = Cascade(num_hidden_nodes)
+        cascade.X_val, cascade.y_val = val_set, val_target
+        cascade.fit(train_set2,train_target2)
+           
+        predRNA = cascade.predict(test_set)
+        predRNAVal = cascade.predict(val_set)
+        # print(predRNA)
+        # predRNA = np.array(predRNA)[:,0]
+        
         predRNAD=predRNA*(max(residualTreino)-min(residualTreino))+min(residualTreino)
+        predRNADVal=predRNAVal*(max(residualTreino)-min(residualTreino))+min(residualTreino)
 
         predFinal=numpy.asarray(predTest)+numpy.asarray(predRNAD)
+        predFinalVal=numpy.asarray(predVal)+numpy.asarray(predRNADVal)
+        # predFinal=numpy.asarray(predTest)
 
-        predFinalN=(numpy.asarray(predFinal)-min(traindats))/(max(traindats)-min(traindats))
-
-        testTarget=(numpy.asarray(arima_test)-min(traindats))/(max(traindats)-min(traindats))
-        mse=mean_squared_error(testTarget,predFinalN)
-        # print("neurolist")
-        return neuronlist[index],mse,predFinalN
+        # predFinalN=(numpy.asarray(predFinal)-min(traindats))/(max(traindats)-min(traindats))
+        # testTarget=(numpy.asarray(arima_test)-min(traindats))/(max(traindats)-min(traindats))
+        
+        predFinalN=(numpy.asarray(predFinal))
+        predFinalNVal=(numpy.asarray(predFinalVal))
+        
+        testTarget=(numpy.asarray(arima_test))
+        valTarget=(numpy.asarray(arima_val))
+        # print("predFinalN")
+        # print(predFinalN)
+        # print("testTarget")
+        # print(testTarget)
+        # testTarget = desnormalizar(targetTestScaler,numpy.array(testTarget).reshape(-1, 1))
+        # predFinalN = desnormalizar(targetTestScaler,numpy.array(predFinalN).reshape(-1, 1))
+                
+        mape, mse, rmse = calculateResidualError(test_target, predFinalN)                
+        mapeVal, mseVal, rmseVal = calculateResidualError(valTarget, predFinalNVal)                
+        
+        return mape, mse, rmse, predFinalN,mapeVal, mseVal, rmseVal, cascade.optimalNumHiddenNodes
+        
 
 
