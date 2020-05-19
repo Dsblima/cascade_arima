@@ -39,13 +39,12 @@ if __name__ == '__main__':
             mseValListCascade = []
             for i in list(range(1,31)):
                 # print(str(i) + ' '+ base)
-                cascadeArima: CascadeArima = CascadeArima(dataNorm,dimension,10,100,numHiddenNodes)
+                cascadeArima: CascadeArima = CascadeArima(dataNorm,dimension,10,round(len(data)-len(data)*0.8),numHiddenNodes)
                 mape, mse, rmse, predFinalN,mapeVal, mseVal, rmseVal, optimalNumHiddenNodes = cascadeArima.start()
                 mapeListCascade.append(mape)
                 mseListCascade.append(mse)              
                 mseValListCascade.append(mseVal)              
-            
-            
+                        
             print(np.mean(mapeListCascade))
             print(np.mean(mseListCascade))
             print("Optimal number of Hidden Nodes "+str(optimalNumHiddenNodes))
@@ -54,7 +53,7 @@ if __name__ == '__main__':
             mseValByNumHiddenNodesList.append(np.mean(mseValListCascade))
         
         # print(mseByNumHiddenNodesList) 
-        plot(base,"Arima Cascade",70,mseByNumHiddenNodesList,mseValByNumHiddenNodesList,[],"Validation","Test","",False, True)   
+        plot(base,"Arima Cascade Normalizado",70,mseByNumHiddenNodesList,mseValByNumHiddenNodesList,[],"Validation","Test","",False, True)   
             
         
            

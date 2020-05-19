@@ -37,7 +37,7 @@ class CascadeArima:
         self.data=data
         self.dimension=dimension
         self.trainset=0.6
-        self.valset=0.4
+        self.valset=0.2
         self.neurons=neurons
         self.testNO=testNO
         self.cascadeNumHiddenNodes = cascadeNumHiddenNodes
@@ -46,12 +46,8 @@ class CascadeArima:
         # separando os dados em treino, teste e validação
         train_set, train_target, val_set, val_target, test_set, test_target, arima_train, arima_val, arima_test= dh2.redimensiondata(self.data,self.dimension,self.trainset,self.valset,self.testNO)
         
-        # NORMALIZAR OS DADOS
-        
-        # inputTrainScaler,targetTrainScaler,train_set,train_target = normalizar(numpy.array(train_set), numpy.array(train_target).reshape(-1, 1))
-        # inputValScaler,targetValScaler,val_set, val_target = normalizar(numpy.array(val_set), numpy.array(val_target).reshape(-1, 1))
-        # inputTestScaler,targetTestScaler,test_set, test_target = normalizar(numpy.array(test_set), numpy.array(test_target).reshape(-1, 1))
-        
+        # self.checkDatadivision(train_set, val_set, test_set, arima_train, arima_val, arima_test)
+                        
         traindats=[]
         traindats.extend(arima_train)
         traindats.extend(arima_val)
@@ -103,14 +99,16 @@ class CascadeArima:
         predFinalVal=numpy.asarray(predVal)+numpy.asarray(predRNADVal)
         # predFinal=numpy.asarray(predTest)
 
-        # predFinalN=(numpy.asarray(predFinal)-min(traindats))/(max(traindats)-min(traindats))
-        # testTarget=(numpy.asarray(arima_test)-min(traindats))/(max(traindats)-min(traindats))
+        predFinalN=(numpy.asarray(predFinal)-min(traindats))/(max(traindats)-min(traindats))
+        predFinalNVal=(numpy.asarray(predFinalVal)-min(traindats))/(max(traindats)-min(traindats))
+        testTarget=(numpy.asarray(arima_test)-min(traindats))/(max(traindats)-min(traindats))
+        valTarget=(numpy.asarray(arima_val)-min(traindats))/(max(traindats)-min(traindats))
         
-        predFinalN=(numpy.asarray(predFinal))
-        predFinalNVal=(numpy.asarray(predFinalVal))
+        # predFinalN=(numpy.asarray(predFinal))
+        # predFinalNVal=(numpy.asarray(predFinalVal))
         
-        testTarget=(numpy.asarray(arima_test))
-        valTarget=(numpy.asarray(arima_val))
+        # testTarget=(numpy.asarray(arima_test))
+        # valTarget=(numpy.asarray(arima_val))
         # print("predFinalN")
         # print(predFinalN)
         # print("testTarget")
@@ -118,10 +116,29 @@ class CascadeArima:
         # testTarget = desnormalizar(targetTestScaler,numpy.array(testTarget).reshape(-1, 1))
         # predFinalN = desnormalizar(targetTestScaler,numpy.array(predFinalN).reshape(-1, 1))
                 
-        mape, mse, rmse = calculateResidualError(test_target, predFinalN)                
+        mape, mse, rmse = calculateResidualError(testTarget, predFinalN)                
         mapeVal, mseVal, rmseVal = calculateResidualError(valTarget, predFinalNVal)                
         
         return mape, mse, rmse, predFinalN,mapeVal, mseVal, rmseVal, cascade.optimalNumHiddenNodes
+    
+    def checkDatadivision(self,train_set, val_set, test_set, arima_train, arima_val, arima_test):
+        print("numpy.array(train_set).shape")                
+        print(numpy.array(train_set).shape)
+                        
+        print("numpy.array(val_set).shape")                
+        print(numpy.array(val_set).shape) 
+                       
+        print("numpy.array(test_set).shape")
+        print(numpy.array(test_set).shape)
         
+        print("numpy.array(arima_train).shape")                
+        print(numpy.array(arima_train).shape)
+                        
+        print("numpy.array(arima_val).shape")                
+        print(numpy.array(arima_val).shape) 
+                       
+        print("numpy.array(arima_test).shape")
+        print(numpy.array(arima_test).shape)
+        sys.exit(-1)            
 
 

@@ -77,7 +77,7 @@ class Cascade(object):
   def predict(self,input):
       
     # for i, model in self.ensemble.items():
-       
+    print()   
     netiTeste = self.forward(self.optimalWi,input)
     predTeste = self.calcPred(self.optimalWo,netiTeste)      
       
