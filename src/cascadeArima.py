@@ -28,22 +28,17 @@ from Padronizar import *
 
 class CascadeArima:
     def __init__(self,data,dimension,neurons,testNO, cascadeNumHiddenNodes):
-        # print("rpy2.__path__")
-        # print(rpy2.__path__)
-	    # data = dados que serão trabahados
-		# dimension = dimensão dos dados, (janela)
-		# neurons = número de neurônios escondidos
-		# testNO = número de instâncias de teste
+        
         self.data=data
         self.dimension=dimension
         self.trainset=0.6
-        self.valset=0.2
+        self.valset=0.4
         self.neurons=neurons
         self.testNO=testNO
         self.cascadeNumHiddenNodes = cascadeNumHiddenNodes
     def start(self):
         dh2=dh.DataHandler(self.data,self.dimension,self.trainset,self.valset,self.testNO)
-        # separando os dados em treino, teste e validação
+        
         train_set, train_target, val_set, val_target, test_set, test_target, arima_train, arima_val, arima_test= dh2.redimensiondata(self.data,self.dimension,self.trainset,self.valset,self.testNO)
         
         # self.checkDatadivision(train_set, val_set, test_set, arima_train, arima_val, arima_test)
@@ -103,18 +98,6 @@ class CascadeArima:
         predFinalNVal=(numpy.asarray(predFinalVal)-min(traindats))/(max(traindats)-min(traindats))
         testTarget=(numpy.asarray(arima_test)-min(traindats))/(max(traindats)-min(traindats))
         valTarget=(numpy.asarray(arima_val)-min(traindats))/(max(traindats)-min(traindats))
-        
-        # predFinalN=(numpy.asarray(predFinal))
-        # predFinalNVal=(numpy.asarray(predFinalVal))
-        
-        # testTarget=(numpy.asarray(arima_test))
-        # valTarget=(numpy.asarray(arima_val))
-        # print("predFinalN")
-        # print(predFinalN)
-        # print("testTarget")
-        # print(testTarget)
-        # testTarget = desnormalizar(targetTestScaler,numpy.array(testTarget).reshape(-1, 1))
-        # predFinalN = desnormalizar(targetTestScaler,numpy.array(predFinalN).reshape(-1, 1))
                 
         mape, mse, rmse = calculateResidualError(testTarget, predFinalN)                
         mapeVal, mseVal, rmseVal = calculateResidualError(valTarget, predFinalNVal)                

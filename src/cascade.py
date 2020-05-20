@@ -44,7 +44,7 @@ class Cascade(object):
     self.y_train=[]
     self.y_test=[]
     self.minimumError = math.inf
-    self.optimalWi = []    
+    self.optimalWi = {}    
     self.optimalWo = []          
     
   def fit(self, train_set, train_target):
@@ -68,7 +68,7 @@ class Cascade(object):
         
         if mse < self.minimumError:
           self.optimalWi = self.weightsArray.copy()
-          self.optimalWo = w0.copy()
+          self.optimalWo = np.array(w0.copy())
           self.minimumError = mse
           self.optimalNumHiddenNodes = i+1
         # self.mapeArray.append(mape)
@@ -76,8 +76,10 @@ class Cascade(object):
     
   def predict(self,input):
       
-    # for i, model in self.ensemble.items():
-    print()   
+    # for i, model in self.ensemble.items():           
+    
+    # self.optimalWo = checkWeights(np.array(self.optimalWo))
+    
     netiTeste = self.forward(self.optimalWi,input)
     predTeste = self.calcPred(self.optimalWo,netiTeste)      
       
@@ -102,13 +104,14 @@ class Cascade(object):
     for node, weights in wh.items():
       if node == 0:
         
-        ent = np.dot( input,weights)
+        ent = np.dot( input,weights)        
         neti = sigmoid(ent)      
         netis = neti
         
       else:       
         input = np.concatenate((input,neti),axis=1)
         ent = np.dot( input,weights)
+        
         neti = sigmoid(ent)      
         netis = np.concatenate((netis,neti), axis=1)            
     netis = addBias(np.matrix(netis))
@@ -120,6 +123,7 @@ class Cascade(object):
   
   def saveModel(self,model,position):
     self.ensemble[position] = model
+    
   
   
   
