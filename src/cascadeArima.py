@@ -82,8 +82,8 @@ class CascadeArima:
         cascade.X_val, cascade.y_val = val_set, val_target
         cascade.fit(train_set2,train_target2)
            
-        predRNA = cascade.predict(test_set)
-        predRNAVal = cascade.predict(val_set)
+        predRNA = cascade.predict(test_set2)
+        predRNAVal = cascade.predict(val_set2)
         # print(predRNA)
         # predRNA = np.array(predRNA)[:,0]
         
