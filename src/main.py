@@ -14,6 +14,7 @@ sys.path.append(
 	)
 )
 from util import *
+from Chart import *
 from cascade import *
 import Padronizar as pad
 
@@ -24,11 +25,11 @@ if __name__ == '__main__':
     bases = ['Pollution']
     dimensions = [12]
     
-    maxHiddenNodes = 70
+    maxHiddenNodes = 10
     minHiddenNodes = 1
     iterations = 30
-    saveChart = True
-    showChart = False
+    saveChart = False
+    showChart = True
     
     for base, dimension in zip(bases, dimensions):
         mseValArray = []
@@ -72,7 +73,7 @@ if __name__ == '__main__':
             mseTestArray.append(mseValByNumHiddenNodesList)
             # mseVal.append(mseValByNumHiddenNodesList)
         # print(mseByNumHiddenNodesList) 
-        plot(base,"Arima Cascade",maxHiddenNodes,mseValArray,mseTestArray,[],"Validation","Test","", showChart, saveChart)   
+        plotValidationAndTest(base,"Arima Cascade",maxHiddenNodes,mseValArray,mseTestArray,[],"Validation","Test","", showChart, saveChart)   
             
         
            
