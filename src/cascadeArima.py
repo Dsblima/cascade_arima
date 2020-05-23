@@ -102,7 +102,8 @@ class CascadeArima:
         mape, mse, rmse = calculateResidualError(testTarget, predFinalN)                
         mapeVal, mseVal, rmseVal = calculateResidualError(valTarget, predFinalNVal)                
         
-        return mape, mse, rmse, predFinalN,mapeVal, mseVal, rmseVal, cascade.optimalNumHiddenNodes
+        mapeVal, mseVal, rmseVal = calculateResidualError(valTarget, predFinalNVal)                
+        return mape, mse, rmse, mapeVal, mseVal, rmseVal, cascade.optimalNumHiddenNodes, predFinalNVal, valTarget
     
     def checkDatadivision(self,train_set, val_set, test_set, arima_train, arima_val, arima_test):
         print("numpy.array(train_set).shape")                

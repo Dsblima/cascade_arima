@@ -19,10 +19,16 @@ import Padronizar as pad
 
 if __name__ == '__main__':    
     
-    bases = ["airlines2", "Monthly Sunspot Dataset", "Minimum Daily Temperatures Dataset", "Daily Female Births Dataset",'Colorado River','Eletric','Gas','Lake Erie','Pollution','redwine']
-    dimensions = [12,11,12,12,12,12,12,12,12,12]
+    # bases = ["airlines2", "Monthly Sunspot Dataset", "Minimum Daily Temperatures Dataset", "Daily Female Births Dataset",'Colorado River','Eletric','Gas','Lake Erie','Pollution','redwine']
+    # dimensions = [12,11,12,12,12,12,12,12,12,12]
+    bases = ['Pollution']
+    dimensions = [12]
+    
     maxHiddenNodes = 70
+    minHiddenNodes = 1
     iterations = 30
+    saveChart = True
+    showChart = False
     
     for base, dimension in zip(bases, dimensions):
         mseValArray = []
@@ -32,12 +38,12 @@ if __name__ == '__main__':
         dataSNorm = np.array(data).copy().T[0]
         dataNorm,listMin,listMax = pad.normalizarLinear(data,0.1,0.9)
         dataNorm = np.array(dataNorm).T[0]
-                
+        
         dataBases = [dataNorm,dataSNorm]
         for dataBase in dataBases:
             mseTestByNumHiddenNodesList = []
             mseValByNumHiddenNodesList = []
-            for numHiddenNodes  in list(range(1,maxHiddenNodes+1)):
+            for numHiddenNodes  in list(range(minHiddenNodes,maxHiddenNodes+1)):
                 print("numHiddenNodes: "+  str(numHiddenNodes))
                 
                 # mapeListCascade = []                
@@ -45,16 +51,16 @@ if __name__ == '__main__':
                 mseTestListCascade = []
                 mseValListCascade = []            
                 for i in list(range(1,iterations+1)):
-                    # print(str(i) + ' '+ base)
+                    print("Iteration: "+ str(i))
                     cascadeArima: CascadeArima = CascadeArima(dataBase,dimension,10,round(len(dataBase)-len(dataBase)*0.8),numHiddenNodes)
-                    mape, mse, rmse, predFinalN,mapeVal, mseVal, rmseVal, optimalNumHiddenNodes = cascadeArima.start()
+                    mape, mse, rmse,mapeVal, mseVal, rmseVal, optimalNumHiddenNodes, pred, target  = cascadeArima.start()
                     # mapeListCascade.append(mape)
                     mseTestListCascade.append(mse)              
                     mseValListCascade.append(mseVal)              
                             
                 # print(np.mean(mapeListCascade))
                 # print(np.mean(mseListCascade))
-                print("Optimal number of Hidden Nodes "+str(optimalNumHiddenNodes))
+                print("Optimal number of Hidden Nodes: "+str(optimalNumHiddenNodes))
                 print()
                 mseTestByNumHiddenNodesList.append(np.mean(mseTestListCascade))
                 mseValByNumHiddenNodesList.append(np.mean(mseValListCascade))
@@ -66,7 +72,7 @@ if __name__ == '__main__':
             mseTestArray.append(mseValByNumHiddenNodesList)
             # mseVal.append(mseValByNumHiddenNodesList)
         # print(mseByNumHiddenNodesList) 
-        plot(base,"Arima Cascade",maxHiddenNodes,mseValArray,mseTestArray,[],"Validation","Test","",False, True)   
+        plot(base,"Arima Cascade",maxHiddenNodes,mseValArray,mseTestArray,[],"Validation","Test","", showChart, saveChart)   
             
         
            
