@@ -3,51 +3,46 @@ from matplotlib import colors as mcolors
 import numpy as np
 import pandas as pd
 
-def plotValidationAndTest(base="",model="",num_hidden_nodes=50,y1=[],
-                          y2=[],y3=[],label1="",label2="",label3="",show=False, save=True):
-  
-  normalizedData=pd.DataFrame({'x': range(1,num_hidden_nodes+1), 'y1': y1[0]})
-  noNormalizedData=pd.DataFrame({'x': range(1,num_hidden_nodes+1), 'y1': y1[1]})
+
+class Chart(object):
+    def __init__(self):
+        self.subplot = 211
+        self.fig = plt.figure()
+    def plotValidationAndTest(self,base="", model="", num_hidden_nodes=50, valSet=[],
+                              testSet=[], label1="", label2="", show=False, save=True):
         
-  fig = plt.figure()
-  fig.subplots_adjust(top=0.8)
-  ax1 = fig.add_subplot(211)
-  ax1.set_ylabel('MSE')
-  ax1.set_xlabel('Num hidden nodes')
-  ax1.set_title(base+" with normalization")  
+        self.fig.subplots_adjust(top=0.8)
+        
+        self.plotSubChart(base,num_hidden_nodes, valSet[0],testSet[0], label1, 
+                 label2, "MSE", "Num hidden nodes", base+" with normalization")
+        
+        plt.legend(prop={"size": 20})
+        self.fig.tight_layout(pad=3.0)
+        self.plotSubChart(base,num_hidden_nodes, valSet[1],testSet[1], label1, 
+                 label2, "MSE", "Num hidden nodes", base+" without normalization")        
 
-  
-  plt.plot( 'x', 'y1', data=normalizedData, marker='', markerfacecolor='grey', markersize=12, color='grey', linewidth=4,label=label1)
-  
-  if len(y2)!=0:
-    normalizedData['y2'] = y2[0]
-    noNormalizedData['y2'] = y2[1]
-    plt.plot( 'x', 'y2', data=normalizedData, marker='', markerfacecolor='black', markersize=12, color='black', linewidth=4,label=label2)
-  
-  if len(y3)!=0:
-    df['y3'] = y3[0]
-    noNormalizedData['y3'] = y3[1]
-    plt.plot( 'x', 'y3', data=normalizedData, marker='*', markerfacecolor='red', markersize=12, color='red', linewidth=4,label=label3)
-  
-  # fig = plt.gcf()  
-  # fig.set_size_inches(16.5, 10.5, forward=True)
-  # Add a legend
-  plt.legend(prop={"size":20})
-  fig.tight_layout(pad=3.0)
-  ax2 = fig.add_subplot(212)
-  # ax2 = fig.add_axes([0.15, 0.1, 0.7, 0.3])
-  ax2.set_ylabel('MSE')
-  ax2.set_xlabel('Num hidden nodes')
-  ax2.set_title(base+" without normalization")
-  plt.plot( 'x', 'y1', data=noNormalizedData, marker='', markerfacecolor='grey', markersize=12, color='grey', linewidth=4,label=label1)
-  plt.plot( 'x', 'y2', data=noNormalizedData, marker='', markerfacecolor='black', markersize=12, color='black', linewidth=4,label=label2)
-  # ax2.plot(df['x'],df['y1'],df['y2'])
+        self.fig = plt.gcf()
+        self.fig.set_size_inches(16.5, 10.5, forward=True)
 
-  fig = plt.gcf()  
-  fig.set_size_inches(16.5, 10.5, forward=True)    
-  
-  if show:
-    plt.show()    
-  if save:
-    plt.savefig(base+' '+model+'.png')
-  plt.close()  
+        if show:
+            plt.show()
+        if save:
+            plt.savefig(base+' '+model+'.png')
+        plt.close()
+
+    def plotSubChart(self,base="",num_hidden_nodes=50, valSet=[],testSet=[], label1="", 
+                 label2="", metric="", xlabel="", title=""):
+        df = pd.DataFrame(
+            {'x': range(1, num_hidden_nodes+1), 'valSet': valSet, 'testSet' : testSet })
+        
+        ax = self.fig.add_subplot(self.subplot)
+        ax.set_ylabel(metric)
+        ax.set_xlabel(xlabel)
+        ax.set_title(title)
+        self.subplot += 1
+        
+        plt.plot('x', 'valSet', data=df, marker='', markerfacecolor='grey',
+                 markersize=12, color='grey', linewidth=4, label=label1)
+        plt.plot('x', 'testSet', data=df, marker='', markerfacecolor='black',
+                     markersize=12, color='black', linewidth=4, label=label2)
+        
