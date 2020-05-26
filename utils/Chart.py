@@ -18,6 +18,7 @@ class Chart(object):
         
         plt.legend(prop={"size": 20})
         self.fig.tight_layout(pad=3.0)
+        
         self.plotSubChart(base,num_hidden_nodes, valSet[1],testSet[1], label1, 
                  label2, "MSE", "Num hidden nodes", base+" without normalization")        
 
