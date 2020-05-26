@@ -22,8 +22,8 @@ from JsonManager import *
 def executeCascade():
     bases = ["airlines2", "Monthly Sunspot Dataset", "Minimum Daily Temperatures Dataset", "Daily Female Births Dataset",'Colorado River','Eletric','Gas','Lake Erie','Pollution','redwine']
     dimensions = [12,11,12,12,12,12,12,12,12,12]
-    # bases = ['Pollution']
-    # dimensions = [12]
+    bases = ['Pollution']
+    dimensions = [12]
 
     maxHiddenNodes = 10
     minHiddenNodes = 1
@@ -113,3 +113,7 @@ def executeCascade():
 if __name__ == '__main__':
 
     executeCascade()
+    loadedDict = readJsonFile('../data/simulations/2020-05-25/Pollution.json')
+    
+    
+    
