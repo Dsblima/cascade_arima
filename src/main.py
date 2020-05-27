@@ -46,55 +46,71 @@ def executeCascade():
 
         dataBases = [dataNorm]
         for dataBase in dataBases:
+            
             mseTestByNumHiddenNodesList = []
+            mapeTestByNumHiddenNodesList = []
             mseValByNumHiddenNodesList = []
             mapeValByNumHiddenNodesList = []
-            predList = []
-            targetList = []
+            predValList = []
+            targetValList = []
+            predTestList = []
+            targetTestList = []
             listNodes = list(range(minHiddenNodes, maxHiddenNodes+1))
+            
             for numHiddenNodes in listNodes:
                 # print("numHiddenNodes: " + str(numHiddenNodes))                
 
                 mseTestListCascade = []
+                mapeTestListCascade = []
                 mseValListCascade = []
-                mapeListCascade = []
+                mapeValListCascade = []
                 
                 for i in list(range(1, iterations+1)):
                     # print("Iteration: " + str(i))
                     cascadeArima: CascadeArima = CascadeArima(dataBase, dimension, 10, round(
                         len(dataBase)-len(dataBase)*0.8), numHiddenNodes)
-                    mape, mse, rmse, mapeVal, mseVal, rmseVal, optimalNumHiddenNodes, pred, target = cascadeArima.start()
+                    mapeTest, mseTest, rmseTest, mapeVal, mseVal, rmseVal, optimalNumHiddenNodes, targetVal, predVal,  targetTest, predTest = cascadeArima.start()
                     
-                    mapeListCascade.append(mape)
-                    mseTestListCascade.append(mse)
+                    mapeTestListCascade.append(mapeTest)
+                    mseTestListCascade.append(mseTest)
+                    mapeValListCascade.append(mapeVal)
                     mseValListCascade.append(mseVal)
-                    predList.append(pred)
-                    targetList.append(target)
+                    
+                    predValList.append(predVal)
+                    targetValList.append(targetVal)
+                    predTestList.append(predTest)
+                    targetTestList.append(targetTest)
                 
                 # print("Optimal number of Hidden Nodes: " +
                 #       str(optimalNumHiddenNodes))
                 # print()
                 mseTestByNumHiddenNodesList.append(np.mean(mseTestListCascade))
+                mapeTestByNumHiddenNodesList.append(np.mean(mapeTestListCascade))
                 mseValByNumHiddenNodesList.append(np.mean(mseValListCascade))
-                mapeValByNumHiddenNodesList.append(np.mean(mapeListCascade))
+                mapeValByNumHiddenNodesList.append(np.mean(mapeValListCascade))
             
             dictToSave['model'] = model
             dictToSave['activationFunction'] = 'sigmoid'
             dictToSave['inputsize']  = dimension
             dictToSave['executions'] = []
             
-            for mapeValue, mseValue, predValues, targetValues, numHiddenNodes in zip( mapeValByNumHiddenNodesList, mseValByNumHiddenNodesList, predList, targetList, listNodes ):
+            for mapeValValue, mseValValue, mapeTestValue, mseTestValue, valPredValues, valTargetValues, testPredValues, testTargetValues, numHiddenNodes in zip( mapeValByNumHiddenNodesList, mseValByNumHiddenNodesList,mapeTestByNumHiddenNodesList, mseTestByNumHiddenNodesList,  predValList, targetValList, predTestList, targetTestList, listNodes ):
                
                 dictToSave['executions'].append(
                     {
                         "numHiddenNodes":numHiddenNodes,
-                        "pred":predValues.tolist(),
-                        "true":targetValues.tolist(),
+                        "predVal":valPredValues.tolist(),
+                        "trueVal":valTargetValues.tolist(),
+                        "predTest":testPredValues.tolist(),
+                        "trueTest":testTargetValues.tolist(),
                         "errors":[
                             {
-                                "mape":mapeValue,
-                                "mse":mseValue,
-                                "rmse":"0"
+                                "mapeVal":mapeValValue,
+                                "mseVal":mseValValue,
+                                "rmseVal":"0",
+                                "mapeTest":mapeTestValue,
+                                "mseTest":mseTestValue,
+                                "rmseTest":"0"
                             }
                         ]
                     }
@@ -113,7 +129,10 @@ def executeCascade():
 if __name__ == '__main__':
 
     executeCascade()
-    loadedDict = readJsonFile('../data/simulations/2020-05-25/Pollution.json')
-    
+    # loadedDict = readJsonFile('../data/simulations/2020-05-25/Pollution.json')
+    # for execution in loadedDict['executions']:
+    #     print('Num hidden '+ str(execution['numHiddenNodes']))
+    #     for key in execution['errors']:
+    #         print(key['mse'])
     
     

@@ -99,11 +99,11 @@ class CascadeArima:
         testTarget=(numpy.asarray(arima_test)-min(traindats))/(max(traindats)-min(traindats))
         valTarget=(numpy.asarray(arima_val)-min(traindats))/(max(traindats)-min(traindats))
                 
-        mape, mse, rmse = calculateResidualError(testTarget, predFinalN)                
+        mapeTest, mseTest, rmseTest = calculateResidualError(testTarget, predFinalN)                
         mapeVal, mseVal, rmseVal = calculateResidualError(valTarget, predFinalNVal)                
         
-        mapeVal, mseVal, rmseVal = calculateResidualError(valTarget, predFinalNVal)                
-        return mape, mse, rmse, mapeVal, mseVal, rmseVal, cascade.optimalNumHiddenNodes, predFinalNVal, valTarget
+        # mapeVal, mseVal, rmseVal = calculateResidualError(valTarget, predFinalNVal)                
+        return mapeTest, mseTest, rmseTest, mapeVal, mseVal, rmseVal, cascade.optimalNumHiddenNodes, valTarget, predFinalNVal, testTarget, predFinalN
     
     def checkDatadivision(self,train_set, val_set, test_set, arima_train, arima_val, arima_test):
         print("numpy.array(train_set).shape")                
