@@ -19,19 +19,8 @@ from util import *
 from activation_functions import *
 from JsonManager import *
 
-def executeCascade():
-    bases = ["airlines2", "Monthly Sunspot Dataset", "Minimum Daily Temperatures Dataset", "Daily Female Births Dataset",'Colorado River','Eletric','Gas','Lake Erie','Pollution','redwine']
-    dimensions = [12,11,12,12,12,12,12,12,12,12]
-    bases = ['Pollution']
-    dimensions = [12]
-
-    maxHiddenNodes = 10
-    minHiddenNodes = 1
-    iterations = 1
-    saveChart = False
-    showChart = True
-    model = "Arima Cascade"
-    chart:Chart = Chart()
+def executeCascade(bases, dimensions, maxHiddenNodes, minHiddenNodes, iterations, model):
+    
 
     for base, dimension in zip(bases, dimensions):
         mseValArray = []
@@ -116,23 +105,58 @@ def executeCascade():
                     }
                 )
              
-            writeJsonFile(dictToSave, base)
-            
-            mseValArray.append(mseTestByNumHiddenNodesList)            
+            writeJsonFile(dictToSave, base)                       
+                    
+# Go throughout a dict, get the errors and returns arrays with them
+def getErrors(dictToRead):
+    mapeValArray = []
+    mseValArray = []
+    mapeTestArray = []
+    mseTestArray = []
+    for execution in dictToRead['executions']:
+        
+        for error in execution['errors']:
+            mapeValArray.append(error['mapeVal'])
+            mseValArray.append(error['mseVal'])
+            mapeTestArray.append(error['mapeTest'])
+            mseTestArray.append(error['mseTest'])
+    
+    return mapeValArray, mseValArray, mapeTestArray, mseTestArray
 
-            mseTestArray.append(mseValByNumHiddenNodesList)
-            
-        # chart.plotValidationAndTest(base, "Arima Cascade", maxHiddenNodes, mseValArray,
-        #                       mseTestArray, "Validation", "Test", showChart, saveChart)
+def getPredAndTrueValues(dictToRead, node):
+    predVal = []
+    trueVal = []
+    predTest = []
+    trueTest = []
+    for execution in dictToRead['executions']:
+        if execution['numHiddenNodes'] == node:
+            predVal = execution['predVal']
+            trueVal = execution['trueVal']
+            predTest = execution['predTest']
+            trueTest = execution['trueTest']
 
-# def 
+    return predVal, trueVal, predTest, trueTest
+
 if __name__ == '__main__':
+    bases = ["airlines2", "Monthly Sunspot Dataset", "Minimum Daily Temperatures Dataset", "Daily Female Births Dataset",'Colorado River','Eletric','Gas','Lake Erie','Pollution','redwine']
+    dimensions = [12,11,12,12,12,12,12,12,12,12]
+    # bases = ['Pollution']
+    # dimensions = [12]
+    maxHiddenNodes = 70
+    minHiddenNodes = 1
+    iterations = 1    
+    model = "Arima Cascade"
+    saveChart = False
+    showChart = True
+    chart:Chart = Chart()
+    executeCascade(bases, dimensions, maxHiddenNodes, minHiddenNodes, iterations, model)
+    
+    base = 'Pollution'
+    loadedDict = readJsonFile('../data/simulations/2020-05-27/'+base+'.json')
+    mapeValArray, mseValArray, mapeTestArray, mseTestArray = getErrors(loadedDict)
+    predVal, trueVal, predTest, trueTest = getPredAndTrueValues(loadedDict,2)
+    chart.plotValidationAndTest(base, "Arima Cascade", maxHiddenNodes, mseValArray,
+                              mseTestArray, "Validation", "Test", showChart, saveChart)
 
-    executeCascade()
-    # loadedDict = readJsonFile('../data/simulations/2020-05-25/Pollution.json')
-    # for execution in loadedDict['executions']:
-    #     print('Num hidden '+ str(execution['numHiddenNodes']))
-    #     for key in execution['errors']:
-    #         print(key['mse'])
     
     

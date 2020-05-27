@@ -13,14 +13,14 @@ class Chart(object):
         
         self.fig.subplots_adjust(top=0.8)
         
-        self.plotSubChart(base,num_hidden_nodes, valSet[0],testSet[0], label1, 
+        self.plotSubChart(base,num_hidden_nodes, valSet,testSet, label1, 
                  label2, "MSE", "Num hidden nodes", base+" with normalization")
         
         plt.legend(prop={"size": 20})
         self.fig.tight_layout(pad=3.0)
         
-        self.plotSubChart(base,num_hidden_nodes, valSet[1],testSet[1], label1, 
-                 label2, "MSE", "Num hidden nodes", base+" without normalization")        
+        # self.plotSubChart(base,num_hidden_nodes, valSet[1],testSet[1], label1, 
+        #          label2, "MSE", "Num hidden nodes", base+" without normalization")        
 
         self.fig = plt.gcf()
         self.fig.set_size_inches(16.5, 10.5, forward=True)
