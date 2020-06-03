@@ -46,4 +46,7 @@ class Chart(object):
                  markersize=12, color='grey', linewidth=4, label=label1)
         plt.plot('x', 'testSet', data=df, marker='', markerfacecolor='black',
                      markersize=12, color='black', linewidth=4, label=label2)
+
+    def plotTable(self):
+        print()
         
