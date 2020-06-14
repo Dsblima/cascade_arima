@@ -1,0 +1,14 @@
+- colocar no grafico validação e teste ok
+- verificar divisão dos dados ok
+- verificar pesos do elm ok
+- ajustar o código ok
+
+03/06
+- estado da arte cascade - em andamento - por que utilizá-lo, 
+- utilizar regularização nos pesos e mostrar resultados
+
+10/06
+- comparar com reg e sem reg arima e cascade - gerar documento com gráficos
+- Estudar incremental e aplicar função
+
+

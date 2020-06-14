@@ -1,0 +1,4 @@
+- usar conjunto de val para gerar graficos ok 
+- gerar graficos de conv. nos residuos do arima ok
+- testar elm com menos nh ok
+- verificar quantas camadas sao geradas para cada base
