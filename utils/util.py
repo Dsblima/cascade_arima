@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import colors as mcolors
 from sklearn.metrics import mean_squared_error
-# import Arquivo
+import File
 from DataHandler import *
 import Padronizar
 import matplotlib as mpl
@@ -34,7 +34,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
   
 def load_and_preprocess_data(baseName,dimension):
     
-    data = Arquivo.ler('../data/'+baseName+'.txt')
+    data = File.ler('../data/'+baseName+'.txt')
     dh:DataHandler = DataHandler(data, dimension, 60, 20,20)
     X_train, y_train, val_set, val_target, X_test, y_test, arima_train, arima_val, arima_test= dh.redimensiondata(data, dimension, 60, 20,20)
 
@@ -51,10 +51,10 @@ def load_and_preprocess_data(baseName,dimension):
     # print("y")
     # print(y[y.columns[0]])
     # minmaxscaler = MinMaxScaler(feature_range=(0,1))
-    dataNX, listMin,  listMax  = Padronizar.normalizarLinear(x, 0.1, 0.9)
-    dataNY, listMinY, listMaxY = Padronizar.normalizarLinear(y, 0.1, 0.9)
+    dataNX, listMin,  listMax  = Padronizar.normalizarLinear(x, -1, 1)
+    dataNY, listMinY, listMaxY = Padronizar.normalizarLinear(y, -1, 1)
     # scalerX,scalerY, dataNormalizadoX, dataNormalizadoY = Padronizar.normalizar(x,y)
-    X_train, X_test, y_train, y_test = train_test_split(dataNX, dataNY, train_size = 0.8, test_size  = 0.2)
+    X_train, X_test, y_train, y_test = train_test_split(dataNX, dataNY, train_size = 0.6, test_size  = 0.4)
     X_test, X_val, y_test, y_val = train_test_split(X_test, y_test, train_size = 0.5, test_size  = 0.5)
     
     X_train = addBias(X_train.values)    

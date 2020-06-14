@@ -27,7 +27,7 @@ from Padronizar import *
 
 
 class CascadeArima:
-    def __init__(self,data,dimension,neurons,testNO, cascadeNumHiddenNodes):
+    def __init__(self,data,dimension,neurons,testNO, cascadeNumHiddenNodes, lambdaValue):
         
         self.data=data
         self.dimension=dimension
@@ -36,6 +36,7 @@ class CascadeArima:
         self.neurons=neurons
         self.testNO=testNO
         self.cascadeNumHiddenNodes = cascadeNumHiddenNodes
+        self.lambdaValue = lambdaValue
     def start(self):
         dh2=dh.DataHandler(self.data,self.dimension,self.trainset,self.valset,self.testNO)
         
@@ -78,12 +79,12 @@ class CascadeArima:
         train_target2.extend(val_target2)
         
         num_hidden_nodes = self.cascadeNumHiddenNodes
-        cascade: Cascade = Cascade(num_hidden_nodes)
-        cascade.X_val, cascade.y_val = val_set, val_target
-        cascade.fit(train_set2,train_target2)
+        cascade: Cascade = Cascade(num_hidden_nodes, self.lambdaValue)
+        cascade.X_val, cascade.y_val = addBias(val_set), val_target
+        cascade.fit(addBias(train_set2),train_target2)
            
-        predRNA = cascade.predict(test_set2)
-        predRNAVal = cascade.predict(val_set2)
+        predRNA = cascade.predict(addBias(test_set2))
+        predRNAVal = cascade.predict(addBias(val_set2))
         # print(predRNA)
         # predRNA = np.array(predRNA)[:,0]
         
