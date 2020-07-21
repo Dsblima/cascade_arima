@@ -8,7 +8,8 @@ import Padronizar
 import matplotlib as mpl
 from sklearn.model_selection import train_test_split
 from math import sqrt
-
+from JsonManager import *
+from Chart import *
 def add_1(arr):
     return np.append(arr,1)
   
@@ -32,7 +33,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
     y_true, y_pred = np.array(y_true), np.array(y_pred)
     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
   
-def load_and_preprocess_data(baseName,dimension):
+def load_and_preprocess_data(baseName,dimension, lowerLimit, upperLimit):
     
     data = File.ler('../data/'+baseName+'.txt')
     dh:DataHandler = DataHandler(data, dimension, 60, 20,20)
@@ -51,10 +52,10 @@ def load_and_preprocess_data(baseName,dimension):
     # print("y")
     # print(y[y.columns[0]])
     # minmaxscaler = MinMaxScaler(feature_range=(0,1))
-    dataNX, listMin,  listMax  = Padronizar.normalizarLinear(x, -1, 1)
-    dataNY, listMinY, listMaxY = Padronizar.normalizarLinear(y, -1, 1)
+    # dataNX, listMin,  listMax  = Padronizar.normalizarLinear(x, lowerLimit, upperLimit)
+    # dataNY, listMinY, listMaxY = Padronizar.normalizarLinear(y, lowerLimit, upperLimit)
     # scalerX,scalerY, dataNormalizadoX, dataNormalizadoY = Padronizar.normalizar(x,y)
-    X_train, X_test, y_train, y_test = train_test_split(dataNX, dataNY, train_size = 0.6, test_size  = 0.4)
+    X_train, X_test, y_train, y_test = train_test_split(x, y, train_size = 0.6, test_size  = 0.4)
     X_test, X_val, y_test, y_val = train_test_split(X_test, y_test, train_size = 0.5, test_size  = 0.5)
     
     X_train = addBias(X_train.values)    
@@ -82,5 +83,88 @@ def calculateResidualError(trueValues,pred):
     rmse = sqrt(mse)
     
     return mape, mse, rmse
+def getErrors(dictToRead):
+    
+    mapeValArray = []
+    mseValArray = []
+    mapeTestArray = []
+    mseTestArray = []
+    for execution in dictToRead['executions']:
+        
+        for error in execution['errors']:
+            mapeValArray.append(error['mapeVal'])
+            mseValArray.append(error['mseVal'])
+            mapeTestArray.append(error['mapeTest'])
+            mseTestArray.append(error['mseTest'])
+    
+    return mapeValArray, mseValArray, mapeTestArray, mseTestArray
 
+def getSmallestError(errorList):
+    smallestError = 10000000
+    numHiddenNode = 1
+    numHiddenNodeSmallestError = 1
+    
+    for error in errorList:
+        if error < smallestError:
+            smallestError = error
+            numHiddenNodeSmallestError = numHiddenNode
+        numHiddenNode += 1
+    return smallestError, numHiddenNodeSmallestError
+
+def getNumHiddenNodesSmallestError(bases,folder, model):
+    errorsDict = []
+    mseVal = []
+    mseTest = []
+    for base in bases:
+        
+        print(base)
+        fileName = folder+base        
+        loadedDict = readJsonFile(fileName+'.json')        
+        mapeValArray, mseValArray, mapeTestArray, mseTestArray = getErrors(loadedDict)
+        smallestErrorVal, numHiddenNodeSmallestErrorVal = getSmallestError(mseValArray)
+        smallestErrorTest, numHiddenNodeSmallestErrorTest = getSmallestError(mseTestArray)
+        val = str(round(smallestErrorVal,5))+'-'+str(numHiddenNodeSmallestErrorVal)
+        test = str(round(smallestErrorTest,5))+'-'+str(numHiddenNodeSmallestErrorTest)        
+        mseVal.append(val)
+        mseTest.append(test)
+        print("mseVal")
+        print(val)        
+        print("mseTest")
+        print(test)        
+        print()        
+    df = pd.DataFrame(data={"Database": bases, "MSE Val": mseVal, "MSE Test":mseTest})
+    df.to_csv(folder+model+'_smallestErrors.csv', sep=',',index=False)    
+        
+def getPredAndTrueValues(dictToRead, node):
+    predVal = []
+    trueVal = []
+    predTest = []
+    trueTest = []
+    for execution in dictToRead['executions']:
+        if execution['numHiddenNodes'] == node:
+            predVal = execution['predVal']
+            trueVal = execution['trueVal']
+            predTest = execution['predTest']
+            trueTest = execution['trueTest']
+
+    return predVal, trueVal, predTest, trueTest
+
+def visualizeResults(bases, dirs, titles, model, saveChart, showChart, folderToSave, maxHiddenNodes):    
+    for base in bases:
+        mseVal = []
+        mseTest = []
+        chart:Chart = Chart()
+        
+        for folder, title in zip(dirs, titles):
+        
+            fileName = folder+base
+        
+            loadedDict = readJsonFile(fileName+'.json')    
+            
+            mapeValArray, mseValArray, mapeTestArray, mseTestArray = getErrors(loadedDict)
+            mseVal.append(mseValArray)
+            mseTest.append(mseTestArray)
+            predVal, trueVal, predTest, trueTest = getPredAndTrueValues(loadedDict,2)
+            
+        chart.plotValidationAndTest(base, model, maxHiddenNodes, mseVal, mseTest, "Validation", "Test", titles, showChart, saveChart, folderToSave)
     

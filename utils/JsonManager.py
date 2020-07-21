@@ -9,7 +9,7 @@ def writeJsonFile(dictToSave, base, folderToSave):
     if not os.path.isdir(path):
         os.mkdir(path)
         
-    with open(path+'/'+base+'.json', 'w') as outfile:
+    with open(path+'/'+base+'.json', 'w+') as outfile:
         json.dump(dictToSave, outfile)
 
 #READ A JSON FILE E RETURN A DICT 

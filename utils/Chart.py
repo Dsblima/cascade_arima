@@ -12,18 +12,19 @@ class Chart(object):
         self.subplot = 211
         self.fig = plt.figure()
     def plotValidationAndTest(self,base="", model="", num_hidden_nodes=50, valSet=[],
-                              testSet=[], label1="", label2="", title1="", title2="", show=False, save=True, folderToSave=''):
+                              testSet=[], label1="", label2="", titles=[], show=False, save=True, folderToSave=''):
         
         self.fig.subplots_adjust(top=0.8)
         
         self.plotSubChart(base,num_hidden_nodes, valSet[0],testSet[0], label1, 
-                 label2, "MSE", "Num hidden nodes", base+title1)
+                 label2, "MSE", "Num hidden nodes", base+titles[0])
         
         plt.legend(prop={"size": 20})
         self.fig.tight_layout(pad=3.0)
         
-        self.plotSubChart(base,num_hidden_nodes, valSet[1],testSet[1], label1, 
-                 label2, "MSE", "Num hidden nodes", base+title2)        
+        if len(valSet) > 1:
+            self.plotSubChart(base,num_hidden_nodes, valSet[1],testSet[1], label1, 
+                    label2, "MSE", "Num hidden nodes", base+titles[1])        
 
         self.fig = plt.gcf()
         self.fig.set_size_inches(16.5, 10.5, forward=True)

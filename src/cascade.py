@@ -76,7 +76,9 @@ class Cascade(object):
   def regularization(self, neti, y):
        netiT = neti.T
        prod = neti.dot(netiT)
-       inv = np.linalg.pinv(1/self.lambdaReg + prod)
+       I = np.zeros(prod.shape, int)
+       np.fill_diagonal(I, 1)
+       inv = np.linalg.pinv(1/self.lambdaReg*I + prod)
        prodInv = netiT.dot(inv) 
        return prodInv.dot(y)
     

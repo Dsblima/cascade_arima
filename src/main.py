@@ -110,56 +110,81 @@ def executeCascade(today,bases,upperLimit, lowerLimit, dimensions, maxHiddenNode
                 writeJsonFile(dictToSave, base, today+" lambda = "+str(lambdaValue))                       
                     
 # Go throughout a dict, get the errors and returns arrays with them
-def getErrors(dictToRead):
-    mapeValArray = []
-    mseValArray = []
-    mapeTestArray = []
-    mseTestArray = []
-    for execution in dictToRead['executions']:
+# def getErrors(dictToRead):
+#     mapeValArray = []
+#     mseValArray = []
+#     mapeTestArray = []
+#     mseTestArray = []
+#     for execution in dictToRead['executions']:
         
-        for error in execution['errors']:
-            mapeValArray.append(error['mapeVal'])
-            mseValArray.append(error['mseVal'])
-            mapeTestArray.append(error['mapeTest'])
-            mseTestArray.append(error['mseTest'])
+#         for error in execution['errors']:
+#             mapeValArray.append(error['mapeVal'])
+#             mseValArray.append(error['mseVal'])
+#             mapeTestArray.append(error['mapeTest'])
+#             mseTestArray.append(error['mseTest'])
     
-    return mapeValArray, mseValArray, mapeTestArray, mseTestArray
-
-def getPredAndTrueValues(dictToRead, node):
-    predVal = []
-    trueVal = []
-    predTest = []
-    trueTest = []
-    for execution in dictToRead['executions']:
-        if execution['numHiddenNodes'] == node:
-            predVal = execution['predVal']
-            trueVal = execution['trueVal']
-            predTest = execution['predTest']
-            trueTest = execution['trueTest']
-
-    return predVal, trueVal, predTest, trueTest
-
-def visualizeResults(bases, dirs, titles, model, saveChart, showChart, folderToSave):
+#     return mapeValArray, mseValArray, mapeTestArray, mseTestArray
+# def getSmallestError(errorList):
+#     smallestError = 10000000
+#     numHiddenNode = 1
+#     numHiddenNodeSmallestError = 1
     
-    for base in bases:
-        mseVal = []
-        mseTest = []
-        chart:Chart = Chart()
+#     for error in errorList:
+#         if error < smallestError:
+#             smallestError = error
+#             numHiddenNodeSmallestError = numHiddenNode
+#         numHiddenNode += 1
+#     return smallestError, numHiddenNodeSmallestError
+
+# def getNumHiddenNodesSmallestError(bases,folder):
+#     for base in bases:
+#         print(base)
+#         fileName = folder+base        
+#         loadedDict = readJsonFile(fileName+'.json')        
+#         mapeValArray, mseValArray, mapeTestArray, mseTestArray = getErrors(loadedDict)
+#         smallestError, numHiddenNodeSmallestError = getSmallestError(mseValArray)
+#         print("mseVal")
+#         print(str(round(smallestError,5))+'\t'+str(numHiddenNodeSmallestError))        
+#         smallestError, numHiddenNodeSmallestError = getSmallestError(mseTestArray)
+#         print("mseTest")
+#         print(str(round(smallestError,5))+'\t'+str(numHiddenNodeSmallestError))        
+#         print()
         
-        for folder, title in zip(dirs, titles):
+# def getPredAndTrueValues(dictToRead, node):
+#     predVal = []
+#     trueVal = []
+#     predTest = []
+#     trueTest = []
+#     for execution in dictToRead['executions']:
+#         if execution['numHiddenNodes'] == node:
+#             predVal = execution['predVal']
+#             trueVal = execution['trueVal']
+#             predTest = execution['predTest']
+#             trueTest = execution['trueTest']
+
+#     return predVal, trueVal, predTest, trueTest
+
+# def visualizeResults(bases, dirs, titles, model, saveChart, showChart, folderToSave):
+    
+#     for base in bases:
+#         mseVal = []
+#         mseTest = []
+#         chart:Chart = Chart()
         
-            fileName = folder+base
+#         for folder, title in zip(dirs, titles):
         
-            loadedDict = readJsonFile(fileName+'.json')    
+#             fileName = folder+base
+        
+#             loadedDict = readJsonFile(fileName+'.json')    
             
-            mapeValArray, mseValArray, mapeTestArray, mseTestArray = getErrors(loadedDict)
-            mseVal.append(mseValArray)
-            mseTest.append(mseTestArray)
-            predVal, trueVal, predTest, trueTest = getPredAndTrueValues(loadedDict,2)
+#             mapeValArray, mseValArray, mapeTestArray, mseTestArray = getErrors(loadedDict)
+#             mseVal.append(mseValArray)
+#             mseTest.append(mseTestArray)
+#             predVal, trueVal, predTest, trueTest = getPredAndTrueValues(loadedDict,2)
             
-        chart.plotValidationAndTest(base, model, maxHiddenNodes, mseVal,
-                                mseTest, "Validation", "Test", title1, title2, showChart, saveChart, folderToSave) 
-    # chart.plotTable(mseValArray,filename+'MSEVal.csv')
+#         chart.plotValidationAndTest(base, model, maxHiddenNodes, mseVal,
+#                                 mseTest, "Validation", "Test", title1, title2, showChart, saveChart, folderToSave) 
+#     # chart.plotTable(mseValArray,filename+'MSEVal.csv')
 
 if __name__ == '__main__':
     bases = ["airlines2", "Daily Female Births Dataset",'Colorado River','Eletric','Gas','Lake Erie','Pollution','redwine', "Monthly Sunspot Dataset", "Minimum Daily Temperatures Dataset"]
@@ -172,20 +197,28 @@ if __name__ == '__main__':
     minHiddenNodes = 1
     iterations = 1    
     today = str(date.today())            
+    model = "Cascade - ARIMA"
     # executeCascade(today, bases, upperLimit, lowerLimit, dimensions, maxHiddenNodes, minHiddenNodes, iterations, model)    
     
-    model = "Cascade - ARIMA"
     saveChart = True
     showChart = False   
-    dir1 = '../data/simulations/2020-06-12 lambda = 10000/'
-    dir2 = '../data/simulations/2020-06-12N regularization/'
-    dirs = [dir1, dir2]
+    dir1 = '../data/simulations/2020-05-27 -1_1/'
+    dir2 = '../data/simulations/2020-06-20 lambda = 10/'
+    dir3 = '../data/simulations/2020-06-20 lambda = 100/'
+    dir4 = '../data/simulations/2020-06-20 lambda = 1000/'
+    dir5 = '../data/simulations/2020-06-20 lambda = 10000/'
+    dir6 = '../data/simulations/2020-06-20 lambda = 100000/'
+    dirs = [dir1, dir2, dir3, dir4, dir5, dir6]
+    dirs = [dir1]
     title1 = " with lambda = 10000" 
     title2 = " without regularization"
     folderToSave = "reg x no reg/"
     titles = [title1, title2]
-    visualizeResults(bases, dirs, titles, model, saveChart, showChart, folderToSave)
-    
+    # visualizeResults(bases, dirs, titles, model, saveChart, showChart, folderToSave)
+    for folder in dirs:
+        print(folder)
+        getNumHiddenNodesSmallestError(bases,folder, model)
+        print('-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-')
 
     
     
